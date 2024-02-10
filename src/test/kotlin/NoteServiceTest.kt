@@ -171,5 +171,161 @@ class NoteServiceTest {
         assertEquals(result, expected)
     }
 
+    @Test
+    fun notesEditComment() {
+        NoteService.addNote(
+            Notes(
+                0,
+                "Заметка #1",
+                "текст заметки",
+                210124,
+                commentsCount = 0,
+                read_comments = 0,
+                view_url = "URL_1",
+                privacy = 2,
+                comment_privacy = 2,
+                user_id = 111111,
+                offset = 0,
+                sort = true,
+                count = 0,
+                can_comment = 1
+            )
+        )
+
+        NoteService.notesCreateComment(
+            1,
+            Comments(0, 0, 1111, "Комментарий №1 к посту 1")
+        )
+
+        val result = NoteService.notesEditComment(1,0, "Edit Comment")
+        val expected = 1
+        assertEquals(result, expected)
+    }
+
+    /*@Test
+    fun getNotes() {
+        NoteService.addNote(
+            Notes(
+                0,
+                "Заметка #1",
+                "текст заметки",
+                210124,
+                commentsCount = 0,
+                read_comments = 0,
+                view_url = "URL_1",
+                privacy = 2,
+                comment_privacy = 2,
+                user_id = 111111,
+                offset = 0,
+                sort = true,
+                count = 0,
+                can_comment = 1
+            )
+        )
+
+        NoteService.notesCreateComment(
+            1,
+            Comments(0, 0, 1111, "Комментарий №1 к посту 1")
+        )
+
+        val result = NoteService.notesEditComment(1,0, "Edit Comment")
+        val expected = 1
+        assertEquals(result, expected)
+    }*/
+
+
+    @Test
+    fun getNotesById() {
+        NoteService.addNote(
+            Notes(
+                0,
+                "Заметка #1",
+                "текст заметки",
+                210124,
+                commentsCount = 0,
+                read_comments = 0,
+                view_url = "URL_1",
+                privacy = 2,
+                comment_privacy = 2,
+                user_id = 111111,
+                offset = 0,
+                sort = true,
+                count = 0,
+                can_comment = 1
+            )
+        )
+
+        val result = NoteService.getNotesById(1)
+        val expected = "Заметка с id=1 имеет следующие параметры: privacy - 2, comment_privacy - 2, can_comment - 1"
+        assertEquals(result, expected)
+    }
+
+    /*@Test
+    fun getNotesComments() {
+        NoteService.addNote(
+            Notes(
+                0,
+                "Заметка #1",
+                "текст заметки",
+                210124,
+                commentsCount = 0,
+                read_comments = 0,
+                view_url = "URL_1",
+                privacy = 2,
+                comment_privacy = 2,
+                user_id = 111111,
+                offset = 0,
+                sort = true,
+                count = 0,
+                can_comment = 1
+            )
+        )
+
+        NoteService.notesCreateComment(
+            1,
+            Comments(0, 0, 1111, "Комментарий №1 к посту 1")
+        )
+
+        NoteService.notesCreateComment(
+            2,
+            Comments(0, 0, 1111, "Комментарий №2 к посту 1")
+        )
+        val result = NoteService.getNotesComments(0, true, 0, 2)
+        //val expected =
+        assertEquals(result, expected)
+    }*/
+
+    @Test
+    fun restoreNotesComment() {
+        NoteService.addNote(
+            Notes(
+                0,
+                "Заметка #1",
+                "текст заметки",
+                210124,
+                commentsCount = 0,
+                read_comments = 0,
+                view_url = "URL_1",
+                privacy = 2,
+                comment_privacy = 2,
+                user_id = 111111,
+                offset = 0,
+                sort = true,
+                count = 0,
+                can_comment = 1
+            )
+        )
+
+        NoteService.notesCreateComment(
+            1,
+            Comments(1, 0, 1111, "Комментарий №1 к посту 1")
+        )
+        NoteService.notesDeleteComment(1)
+
+
+        val result = NoteService.restoreNotesComment(1)
+        val expected = 1
+        assertEquals(result, expected)
+    }
 
 }

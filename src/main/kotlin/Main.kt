@@ -1,5 +1,8 @@
 package ru.netology
 
+import java.util.*
+import kotlin.Comparator
+
 class PostNotFoundException(message: String) : RuntimeException(message)
 
 data class Comments(
@@ -139,6 +142,125 @@ object NoteService {
         throw IndexOutOfBoundsException("180 Note not found. Заметка с id $note_id не найдена!")
     }
 
+    fun notesEditComment(note_id: Int, commentId: Int, message: String): Int {
+
+        for ((index, note) in notes.withIndex()) {
+            if (note.note_id == note_id) {
+                for ((index, comment) in commentsNotes.withIndex()) {
+                    if (comment.commentId == commentId) {
+                        commentsNotes[index] = comment.copy(text = message)
+                        return 1
+                    }
+                }
+            }
+        }
+
+        throw PostNotFoundException("183 Access to comment denied. Комментария с id $note_id нет!")
+    }
+
+    fun getNotes(note_ids: String, user_id: Int, offset: Int, count: Int, sort: Boolean) : List<Notes> {
+
+        var resultListNotes: List<Notes> = emptyList()
+        var arrayId = note_ids.split(",").toTypedArray() // массив заданный id из строки
+        var localCount = 0
+
+        for ((index, stringId) in arrayId.withIndex()) {
+            var note_id_1 = stringId[index].toInt()  // то что было String => Int
+            for (note in notes) {
+                if (note.note_id == note_id_1) { //нашли в массиве нужную заметку
+                    if (note.user_id == user_id && localCount <= count) { // и id автора совпали, и еще не перешагнули за предел кол-во заметок
+                        resultListNotes += note  //добавляем заметку в новый массив
+                        println(resultListNotes.size)
+                        localCount++ // увеличиваем счетчик
+
+                    }
+                }
+            }
+        }
+
+
+        /*val myComparator =  Comparator<Notes> { data1: Notes, data2: Notes ->
+            when {
+                (data1.note_id > data2.note_id) -> 1
+                (data1.note_id < data2.note_id) -> -1
+                else -> 0
+            }
+        }
+        Collections.sort(resultListNotes, myComparator)
+        return resultListNotes*/
+        val noteComparatorSort = Comparator { data1: Notes, data2: Notes ->
+            data1.note_id.compareTo(data2.note_id) *
+                    data1.data.compareTo(data2.data)
+        }
+        //Collections.sort(resultListNotes, noteComparatorSort)
+
+        val noteComparatorRevers = Comparator { data2: Notes, data1: Notes ->
+            data2.note_id.compareTo(data1.note_id) *
+                    data2.data.compareTo(data1.data)
+        }
+        //Collections.sort(resultListNotes, noteComparatorRevers)
+
+        if (sort) {
+            Collections.sort(resultListNotes, noteComparatorSort)
+            println(resultListNotes)
+            return resultListNotes
+
+        } else {
+            Collections.sort(resultListNotes, noteComparatorRevers)
+            println(resultListNotes)
+            return resultListNotes
+        }
+
+    }
+
+    fun getNotesById(note_id: Int): String {
+        for (note in notes) {
+            if (note.note_id == note_id) {
+                return "Заметка с id=$note_id имеет следующие параметры: privacy - ${note.privacy}, comment_privacy - ${note.comment_privacy}, can_comment - ${note.can_comment}"
+            }
+        }
+        throw PostNotFoundException("183 Access to comment denied. Заметки с id $note_id нет!")
+    }
+
+    fun getNotesComments(note_id : Int, sort: Boolean, offset: Int, count: Int): Array<Comments> {
+
+        var newArrayOfComments: Array<Comments> = emptyArray()
+
+        for(note in notes) {
+            if(note.note_id == note_id) {
+                newArrayOfComments += note.commentsNotes
+                newArrayOfComments.forEach { println(it) }
+                return newArrayOfComments
+            }
+        }
+        /*val noteComparatorSort = Comparator { data1: Int, data2: Int -> data1 - data2 }
+        val noteComparatorRevers = Comparator { data1: Int, data2: Int -> data2 - data1 }
+
+        when (sort) {
+            1 -> newArrayOfComments.sortedDescending(noteComparatorRevers)
+            else -> newArrayOfComments.sorted(noteComparatorSort)
+        }
+
+        if(newArrayOfComments.size <= count) {
+            return newArrayOfComments
+        }*/
+        throw PostNotFoundException("181 Access to note denied")
+    }
+
+    fun restoreNotesComment(comment_id: Int): Int {
+
+                for (comment in commentsNotes) {
+                    if (comment.commentId == comment_id) {
+                       if(comment.deleted) {
+                           comment.deleted == false
+                           println(comment)
+                           return 1
+                       }
+                    }
+                }
+
+        throw PostNotFoundException("183 Access to comment denied")
+    }
 }
 
 
@@ -245,12 +367,28 @@ fun main() {
     println("----------DELETE COMMENTS IN NOTE-------------")
 
     println(NoteService.notesDeleteComment(3))
-    NoteService.printNotes()
+    println(NoteService.printNotes())
 
     println("----------EDIT NOTES-------------")
 
-    NoteService.editNote(3, "NEW TITLE", "NEW TEXT", 1, 1, "4654", "123")
+    println(NoteService.editNote(3, "NEW TITLE", "NEW TEXT", 1, 1, "4654", "123"))
     NoteService.printNotes()
+
+    println("----------EDIT COMMENTS IN NOTES-------------")
+    println(NoteService.notesEditComment(3,1, "EDIT COMMENTS"))
+    NoteService.printNotes()
+
+    println("----------GET NOTES-------------")
+    println(NoteService.getNotes("1", 1111, 0, 1, true))
+
+    println("----------GET NOTES BY ID-------------")
+    println(NoteService.getNotesById(1))
+
+    println("----------GET NOTES COMMENTS-------------")
+    println(NoteService.getNotesComments(1, true, 0, 2))
+
+    println("--------RESTORE NOTES COMMENT---------")
+    println(NoteService.restoreNotesComment(3))
 
 }
 
