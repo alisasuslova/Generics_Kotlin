@@ -141,7 +141,7 @@ class NoteServiceTest {
             Comments(0, 0, 3333, "Комментарий №1 к посту 2")
         )
 
-        val result = NoteService.notesDeleteComment(1)
+        val result = NoteService.notesDeleteComment(1, 1)
         val expected = 1
         assertEquals(result, expected)
     }
@@ -197,7 +197,7 @@ class NoteServiceTest {
             Comments(0, 0, 1111, "Комментарий №1 к посту 1")
         )
 
-        val result = NoteService.notesEditComment(1,0, "Edit Comment")
+        val result = NoteService.notesEditComment(1, 0, "Edit Comment")
         val expected = 1
         assertEquals(result, expected)
     }
@@ -206,7 +206,7 @@ class NoteServiceTest {
     fun getNotes() {
         NoteService.addNote(
             Notes(
-                0,
+                1,
                 "Заметка #1",
                 "текст заметки",
                 210124,
@@ -215,7 +215,7 @@ class NoteServiceTest {
                 view_url = "URL_1",
                 privacy = 2,
                 comment_privacy = 2,
-                user_id = 111111,
+                user_id = 1111,
                 offset = 0,
                 sort = true,
                 count = 0,
@@ -223,14 +223,30 @@ class NoteServiceTest {
             )
         )
 
-        NoteService.notesCreateComment(
-            1,
-            Comments(0, 0, 1111, "Комментарий №1 к посту 1")
+        NoteService.addNote(
+            Notes(
+                2,
+                "Заметка #2",
+                "текст заметки",
+                100224,
+                commentsCount = 0,
+                read_comments = 0,
+                view_url = "URL_100",
+                privacy = 2,
+                comment_privacy = 2,
+                user_id = 20002,
+                offset = 0,
+                sort = true,
+                count = 0,
+                can_comment = 1
+            )
         )
 
-        val result = NoteService.notesEditComment(1,0, "Edit Comment")
-        val expected = 1
+        val expected : List<Notes> = [Notes(note_id=1, title="Заметка #1", text="текст заметки", data=210124, commentsNotes=[], commentsCount=0, read_comments=0, view_url="URL_1", privacy=2, comment_privacy=2, privacy_view=, privacy_comment=, user_id=1111, offset=0, count=0, sort=true, note_ids=, can_comment=1, arrayOfDeletedComments=[], deleted=false),
+            Notes(note_id=2, title="Заметка #2", text="текст заметки", data=100224, commentsNotes=[], commentsCount=0, read_comments=0, view_url="URL_100", privacy=2, comment_privacy=2, privacy_view=, privacy_comment=, user_id=20002, offset=0, count=0, sort=true, note_ids=, can_comment=1, arrayOfDeletedComments=[], deleted=false)]
+        val result = NoteService.getNotes("1, 2", 1111, 0, 1, true)
         assertEquals(result, expected)
+
     }*/
 
 
@@ -260,46 +276,48 @@ class NoteServiceTest {
         assertEquals(result, expected)
     }
 
-    /*@Test
-    fun getNotesComments() {
-        NoteService.addNote(
-            Notes(
-                0,
-                "Заметка #1",
-                "текст заметки",
-                210124,
-                commentsCount = 0,
-                read_comments = 0,
-                view_url = "URL_1",
-                privacy = 2,
-                comment_privacy = 2,
-                user_id = 111111,
-                offset = 0,
-                sort = true,
-                count = 0,
-                can_comment = 1
-            )
-        )
 
-        NoteService.notesCreateComment(
-            1,
-            Comments(0, 0, 1111, "Комментарий №1 к посту 1")
-        )
 
-        NoteService.notesCreateComment(
-            2,
-            Comments(0, 0, 1111, "Комментарий №2 к посту 1")
+/*@Test
+fun getNotesComments() {
+    NoteService.addNote(
+        Notes(
+            0,
+            "Заметка #1",
+            "текст заметки",
+            210124,
+            commentsCount = 0,
+            read_comments = 0,
+            view_url = "URL_1",
+            privacy = 2,
+            comment_privacy = 2,
+            user_id = 111111,
+            offset = 0,
+            sort = true,
+            count = 0,
+            can_comment = 1
         )
-        val result = NoteService.getNotesComments(0, true, 0, 2)
-        //val expected =
-        assertEquals(result, expected)
-    }*/
+    )
+
+    NoteService.notesCreateComment(
+        1,
+        Comments(0, 0, 1111, "Комментарий №1 к посту 1")
+    )
+
+    NoteService.notesCreateComment(
+        2,
+        Comments(0, 0, 1111, "Комментарий №2 к посту 1")
+    )
+    val result = NoteService.getNotesComments(0, true, 0, 2)
+    //val expected =
+    assertEquals(result, expected)
+}*/
 
     @Test
     fun restoreNotesComment() {
         NoteService.addNote(
             Notes(
-                0,
+                1,
                 "Заметка #1",
                 "текст заметки",
                 210124,
@@ -320,10 +338,14 @@ class NoteServiceTest {
             1,
             Comments(1, 0, 1111, "Комментарий №1 к посту 1")
         )
-        NoteService.notesDeleteComment(1)
+        NoteService.notesCreateComment(
+            1,
+            Comments(2, 0, 1111, "Комментарий №2 к посту 1")
+        )
+        NoteService.notesDeleteComment(1, 1)
 
 
-        val result = NoteService.restoreNotesComment(1)
+        val result = NoteService.restoreNotesComment(1, 1)
         val expected = 1
         assertEquals(result, expected)
     }

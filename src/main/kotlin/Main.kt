@@ -99,16 +99,20 @@ object NoteService {
         throw IndexOutOfBoundsException("180 Note not found. Заметку с таким id $note_id невозможно удалить!")
     }
 
-    fun notesDeleteComment(comment_id: Int): Int {
-
-        for ((index, comment) in commentsNotes.withIndex()) {
-            if (comment.commentId == comment_id) {
-                val arrList = commentsNotes.toMutableList()
-                arrList.removeAt(comment_id - 1)
-                commentsNotes = arrList.toTypedArray()
-                lastCommentsNotesId--
-                comment.deleted = true
-                return 1
+    fun notesDeleteComment(note_id: Int, comment_id: Int): Int {
+        for ((index, note) in notes.withIndex()) {
+            if (note.note_id == note_id) {
+                for ((index, comment) in note.commentsNotes.withIndex()
+                /*commentsNotes.withIndex()*/) {
+                    if (comment.commentId == comment_id) {
+                        /*val arrList = note.commentsNotes.toMutableList()
+                        arrList.removeAt(comment_id - 1)
+                        note.commentsNotes = arrList.toTypedArray()
+                        lastCommentsNotesId--*/
+                        comment.deleted = true
+                        return 1
+                    }
+                }
             }
         }
 
@@ -148,7 +152,7 @@ object NoteService {
             if (note.note_id == note_id) {
                 for ((index, comment) in commentsNotes.withIndex()) {
                     if (comment.commentId == commentId) {
-                        commentsNotes[index] = comment.copy(text = message)
+                        comment.text = message
                         return 1
                     }
                 }
@@ -158,59 +162,14 @@ object NoteService {
         throw PostNotFoundException("183 Access to comment denied. Комментария с id $note_id нет!")
     }
 
-    fun getNotes(note_ids: String, user_id: Int, offset: Int, count: Int, sort: Boolean) : List<Notes> {
-
+    fun getNotes(note_ids: String, user_id: Int, offset: Int, count: Int, sort: Boolean): List<Notes> {
         var resultListNotes: List<Notes> = emptyList()
-        var arrayId = note_ids.split(",").toTypedArray() // массив заданный id из строки
-        var localCount = 0
-
-        for ((index, stringId) in arrayId.withIndex()) {
-            var note_id_1 = stringId[index].toInt()  // то что было String => Int
-            for (note in notes) {
-                if (note.note_id == note_id_1) { //нашли в массиве нужную заметку
-                    if (note.user_id == user_id && localCount <= count) { // и id автора совпали, и еще не перешагнули за предел кол-во заметок
-                        resultListNotes += note  //добавляем заметку в новый массив
-                        println(resultListNotes.size)
-                        localCount++ // увеличиваем счетчик
-
-                    }
-                }
+        for ((index, note) in notes.withIndex()) {
+            if (note_ids.contains(note.note_id.toString())) {
+                resultListNotes += note.copy(offset = offset, count = count, sort = sort)
             }
         }
-
-
-        /*val myComparator =  Comparator<Notes> { data1: Notes, data2: Notes ->
-            when {
-                (data1.note_id > data2.note_id) -> 1
-                (data1.note_id < data2.note_id) -> -1
-                else -> 0
-            }
-        }
-        Collections.sort(resultListNotes, myComparator)
-        return resultListNotes*/
-        val noteComparatorSort = Comparator { data1: Notes, data2: Notes ->
-            data1.note_id.compareTo(data2.note_id) *
-                    data1.data.compareTo(data2.data)
-        }
-        //Collections.sort(resultListNotes, noteComparatorSort)
-
-        val noteComparatorRevers = Comparator { data2: Notes, data1: Notes ->
-            data2.note_id.compareTo(data1.note_id) *
-                    data2.data.compareTo(data1.data)
-        }
-        //Collections.sort(resultListNotes, noteComparatorRevers)
-
-        if (sort) {
-            Collections.sort(resultListNotes, noteComparatorSort)
-            println(resultListNotes)
-            return resultListNotes
-
-        } else {
-            Collections.sort(resultListNotes, noteComparatorRevers)
-            println(resultListNotes)
-            return resultListNotes
-        }
-
+        return notes.filter { note -> note_ids.contains(note.note_id.toString()) }
     }
 
     fun getNotesById(note_id: Int): String {
@@ -222,45 +181,44 @@ object NoteService {
         throw PostNotFoundException("183 Access to comment denied. Заметки с id $note_id нет!")
     }
 
-    fun getNotesComments(note_id : Int, sort: Boolean, offset: Int, count: Int): Array<Comments> {
+    fun getNotesComments(note_id: Int, sort: Boolean, offset: Int, count: Int): Array<Comments> {
 
         var newArrayOfComments: Array<Comments> = emptyArray()
 
-        for(note in notes) {
-            if(note.note_id == note_id) {
-                newArrayOfComments += note.commentsNotes
+        for (note in notes) {
+            if (note.note_id == note_id) {
+                /*newArrayOfComments += note.commentsNotes.filter { comment -> comment.deleted == false }
+
+                if (sort) {
+                    newArrayOfComments = newArrayOfComments.sortedWith(Comparator { o1, o2 -> o1.date.compareTo(o2.date) }).toTypedArray()
+                }
+                newArrayOfComments = newArrayOfComments.copyOfRange(offset, offset + count)
+                return newArrayOfComments*/
+
+                /*newArrayOfComments += note.commentsNotes
                 newArrayOfComments.forEach { println(it) }
-                return newArrayOfComments
+                return newArrayOfComments*/
             }
         }
-        /*val noteComparatorSort = Comparator { data1: Int, data2: Int -> data1 - data2 }
-        val noteComparatorRevers = Comparator { data1: Int, data2: Int -> data2 - data1 }
-
-        when (sort) {
-            1 -> newArrayOfComments.sortedDescending(noteComparatorRevers)
-            else -> newArrayOfComments.sorted(noteComparatorSort)
-        }
-
-        if(newArrayOfComments.size <= count) {
-            return newArrayOfComments
-        }*/
         throw PostNotFoundException("181 Access to note denied")
     }
 
-    fun restoreNotesComment(comment_id: Int): Int {
-
-                for (comment in commentsNotes) {
-                    if (comment.commentId == comment_id) {
-                       if(comment.deleted) {
-                           comment.deleted == false
-                           println(comment)
-                           return 1
-                       }
+    fun restoreNotesComment(note_id: Int, comment_id: Int): Int {
+        for ((index, note) in notes.withIndex()) {
+            if (note.note_id == note_id) {
+                for ((index, comment) in commentsNotes.withIndex()) {
+                    if (comment.commentId == comment_id && comment.deleted) {
+                        comment.deleted = false
                     }
                 }
+                notes[index] = note.copy(commentsNotes = note.commentsNotes + commentsNotes.last())
+                return 1
+            }
+        }
 
         throw PostNotFoundException("183 Access to comment denied")
     }
+
 }
 
 
@@ -366,7 +324,7 @@ fun main() {
 
     println("----------DELETE COMMENTS IN NOTE-------------")
 
-    println(NoteService.notesDeleteComment(3))
+    println(NoteService.notesDeleteComment(1, 1))
     println(NoteService.printNotes())
 
     println("----------EDIT NOTES-------------")
@@ -375,11 +333,11 @@ fun main() {
     NoteService.printNotes()
 
     println("----------EDIT COMMENTS IN NOTES-------------")
-    println(NoteService.notesEditComment(3,1, "EDIT COMMENTS"))
+    println(NoteService.notesEditComment(1, 1, "EDIT COMMENTS"))
     NoteService.printNotes()
 
     println("----------GET NOTES-------------")
-    println(NoteService.getNotes("1", 1111, 0, 1, true))
+    println(NoteService.getNotes("1, 2", 1111, 0, 1, true))
 
     println("----------GET NOTES BY ID-------------")
     println(NoteService.getNotesById(1))
@@ -388,7 +346,7 @@ fun main() {
     println(NoteService.getNotesComments(1, true, 0, 2))
 
     println("--------RESTORE NOTES COMMENT---------")
-    println(NoteService.restoreNotesComment(3))
-
+    println(NoteService.restoreNotesComment(1, 1))
+    NoteService.printNotes()
 }
 
