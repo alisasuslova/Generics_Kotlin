@@ -167,9 +167,11 @@ object NoteService {
         for ((index, note) in notes.withIndex()) {
             if (note_ids.contains(note.note_id.toString())) {
                 resultListNotes += note.copy(offset = offset, count = count, sort = sort)
+                return notes.filter { it.user_id == user_id}
             }
         }
-        return notes.filter { note -> note_ids.contains(note.note_id.toString()) }
+        //return notes.filter { note -> note_ids.contains(note.note_id.toString()) }
+        throw PostNotFoundException("183 Access to comment denied.")
     }
 
     fun getNotesById(note_id: Int): String {
@@ -187,17 +189,8 @@ object NoteService {
 
         for (note in notes) {
             if (note.note_id == note_id) {
-                /*newArrayOfComments += note.commentsNotes.filter { comment -> comment.deleted == false }
-
-                if (sort) {
-                    newArrayOfComments = newArrayOfComments.sortedWith(Comparator { o1, o2 -> o1.date.compareTo(o2.date) }).toTypedArray()
-                }
-                newArrayOfComments = newArrayOfComments.copyOfRange(offset, offset + count)
-                return newArrayOfComments*/
-
-                /*newArrayOfComments += note.commentsNotes
-                newArrayOfComments.forEach { println(it) }
-                return newArrayOfComments*/
+                newArrayOfComments += note.commentsNotes
+                return newArrayOfComments.filter { comment -> comment.deleted == false }.toTypedArray()
             }
         }
         throw PostNotFoundException("181 Access to note denied")

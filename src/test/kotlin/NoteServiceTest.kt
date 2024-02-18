@@ -202,7 +202,7 @@ class NoteServiceTest {
         assertEquals(result, expected)
     }
 
-    /*@Test
+    @Test
     fun getNotes() {
         NoteService.addNote(
             Notes(
@@ -242,12 +242,16 @@ class NoteServiceTest {
             )
         )
 
-        val expected : List<Notes> = [Notes(note_id=1, title="Заметка #1", text="текст заметки", data=210124, commentsNotes=[], commentsCount=0, read_comments=0, view_url="URL_1", privacy=2, comment_privacy=2, privacy_view=, privacy_comment=, user_id=1111, offset=0, count=0, sort=true, note_ids=, can_comment=1, arrayOfDeletedComments=[], deleted=false),
-            Notes(note_id=2, title="Заметка #2", text="текст заметки", data=100224, commentsNotes=[], commentsCount=0, read_comments=0, view_url="URL_100", privacy=2, comment_privacy=2, privacy_view=, privacy_comment=, user_id=20002, offset=0, count=0, sort=true, note_ids=, can_comment=1, arrayOfDeletedComments=[], deleted=false)]
+        val expected = "Заметка с id=1 имеет следующие параметры: privacy - 2, comment_privacy - 2, can_comment - 1\nЗаметка с id=2 имеет следующие параметры: privacy - 2, comment_privacy - 2, can_comment - 1"
+
+        /*val expected : Array<Notes> = [Notes(note_id=1, title="Заметка #1", text="текст заметки", data=210124, commentsNotes=[Comments(commentId=0, from_id=0, date=1111, text="Комментарий №1 к посту 1", deleted=false),
+            Comments(commentId=1, from_id=0, date=2222, text="EDIT COMMENTS", deleted=true)], commentsCount=0, read_comments=0, view_url="URL_1", privacy=2, comment_privacy=2, privacy_view=, privacy_comment=, user_id=1111, offset=0, count=0, sort=true, note_ids=, can_comment=1, arrayOfDeletedComments=[], deleted=false),
+            Notes(note_id=3, title="NEW TITLE", text="NEW TEXT", data=100224, commentsNotes=[Comments(commentId=3, from_id=0, date=3333, text="Комментарий №1 к посту 3", deleted=false)], commentsCount=0, read_comments=0, view_url="URL_100000", privacy=1, comment_privacy=1, privacy_view=4654, privacy_comment=123, user_id=1111, offset=0, count=0, sort=true, note_ids=, can_comment=1, arrayOfDeletedComments=[], deleted=false)]
+       */
         val result = NoteService.getNotes("1, 2", 1111, 0, 1, true)
         assertEquals(result, expected)
 
-    }*/
+    }
 
 
     @Test
@@ -277,41 +281,42 @@ class NoteServiceTest {
     }
 
 
-
-/*@Test
-fun getNotesComments() {
-    NoteService.addNote(
-        Notes(
-            0,
-            "Заметка #1",
-            "текст заметки",
-            210124,
-            commentsCount = 0,
-            read_comments = 0,
-            view_url = "URL_1",
-            privacy = 2,
-            comment_privacy = 2,
-            user_id = 111111,
-            offset = 0,
-            sort = true,
-            count = 0,
-            can_comment = 1
+    @Test
+    fun getNotesComments() {
+        NoteService.addNote(
+            Notes(
+                0,
+                "Заметка #1",
+                "текст заметки",
+                210124,
+                commentsCount = 0,
+                read_comments = 0,
+                view_url = "URL_1",
+                privacy = 2,
+                comment_privacy = 2,
+                user_id = 111111,
+                offset = 0,
+                sort = true,
+                count = 0,
+                can_comment = 1
+            )
         )
-    )
 
-    NoteService.notesCreateComment(
-        1,
-        Comments(0, 0, 1111, "Комментарий №1 к посту 1")
-    )
+        NoteService.notesCreateComment(
+            1,
+            Comments(0, 0, 1111, "Комментарий №1 к посту 1")
+        )
+        NoteService.notesCreateComment(
+            1,
+            Comments(0, 0, 3333, "Комментарий ��1 к посту 2")
+        )
 
-    NoteService.notesCreateComment(
-        2,
-        Comments(0, 0, 1111, "Комментарий №2 к посту 1")
-    )
-    val result = NoteService.getNotesComments(0, true, 0, 2)
-    //val expected =
-    assertEquals(result, expected)
-}*/
+        val result = NoteService.getNotesComments(1,true, 0, 1)
+        val expected = "[Lru.netology.Comments;@1b83e2"
+
+        assertEquals(result, expected)
+
+    }
 
     @Test
     fun restoreNotesComment() {
